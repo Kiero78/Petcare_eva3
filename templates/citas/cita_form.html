@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PetCare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card card-petcare p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <h3 class="fw-bold mb-0"><i class="fa-solid fa-calendar-plus text-primary me-2"></i>{{ titulo }}</h3>
+                <a href="{% url 'citas:calendario' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancelar
+                </a>
+            </div>
+
+            <!-- ALERTA DINÁMICA DE DISPONIBILIDAD -->
+            <div id="alerta-disponibilidad" class="alert d-none py-2 mb-3"></div>
+
+            <form method="POST" id="form-cita">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong class="d-block mb-1">Error al guardar la cita:</strong>
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <!-- Tutor y Mascota dependientes -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tutor Responsable *</label>
+                        {{ form.tutor }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Mascota Paciente *</label>
+                        {{ form.mascota }}
+                    </div>
+
+                    <!-- Profesional y Tipo de Cita -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Médico Veterinario *</label>
+                        {{ form.veterinario }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tipo de Cita *</label>
+                        {{ form.tipo_cita }}
+                    </div>
+
+                    <!-- Horario y Fecha -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Fecha de la Cita *</label>
+                        {{ form.fecha }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Hora de Inicio *</label>
+                        {{ form.hora_inicio }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Hora de Término *</label>
+                        {{ form.hora_fin }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Motivo de Consulta *</label>
+                        {{ form.motivo }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Observaciones / Preparación previa</label>
+                        {{ form.observaciones }}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="{% url 'citas:calendario' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" id="btn-submit-cita" class="btn btn-petcare px-4">
+                        <i class="fa-solid fa-calendar-check me-1"></i> Confirmar Agendamiento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectTutor = document.getElementById('select-tutor');
+        const selectMascota = document.getElementById('select-mascota');
+        const selectVet = document.getElementById('select-veterinario');
+        const inputFecha = document.getElementById('input-fecha');
+        const inputInicio = document.getElementById('input-hora-inicio');
+        const inputFin = document.getElementById('input-hora-fin');
+        const alerta = document.getElementById('alerta-disponibilidad');
+        const btnSubmit = document.getElementById('btn-submit-cita');
+
+        // 1. CARGA DINÁMICA DE MASCOTAS POR TUTOR
+        function cargarMascotas(tutorId, mascotaSeleccionadaId) {
+            if (!tutorId) {
+                selectMascota.innerHTML = '<option value="">-- Primero seleccione un tutor --</option>';
+                return;
+            }
+
+            fetch(`/clientes/api/tutor/${tutorId}/mascotas/`)
+                .then(res => res.json())
+                .then(data => {
+                    selectMascota.innerHTML = '<option value="">-- Seleccionar Mascota --</option>';
+                    data.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.id;
+                        opt.textContent = `${m.nombre} (${m.especie__nombre})`;
+                        if (mascotaSeleccionadaId && mascotaSeleccionadaId == m.id) {
+                            opt.selected = true;
+                        }
+                        selectMascota.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error(err));
+        }
+
+        if (selectTutor) {
+            selectTutor.addEventListener('change', function() {
+                cargarMascotas(this.value);
+            });
+            if (selectTutor.value) {
+                cargarMascotas(selectTutor.value, selectMascota.value);
+            }
+        }
+
+        // 2. VERIFICACIÓN DINÁMICA DE NO-SOLAPAMIENTO EN VIVO
+        function verificarSolapamiento() {
+            const vetId = selectVet.value;
+            const fecha = inputFecha.value;
+            const horaInicio = inputInicio.value;
+            const horaFin = inputFin.value;
+
+            if (vetId && fecha && horaInicio && horaFin) {
+                if (horaInicio >= horaFin) {
+                    alerta.className = 'alert alert-danger py-2 mb-3';
+                    alerta.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> La hora de término debe ser mayor a la hora de inicio.';
+                    alerta.classList.remove('d-none');
+                    btnSubmit.disabled = true;
+                    return;
+                }
+
+                const params = new URLSearchParams({
+                    veterinario_id: vetId,
+                    fecha: fecha,
+                    hora_inicio: horaInicio,
+                    hora_fin: horaFin
+                });
+
+                fetch(`/citas/api/verificar-solapamiento/?${params.toString()}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.valido) {
+                            alerta.className = 'alert alert-danger py-2 mb-3';
+                            alerta.innerHTML = `<i class="fa-solid fa-circle-exclamation me-1"></i> ${data.mensaje}`;
+                            alerta.classList.remove('d-none');
+                            btnSubmit.disabled = true;
+                        } else {
+                            alerta.className = 'alert alert-success py-2 mb-3';
+                            alerta.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Horario disponible sin solapamiento.';
+                            alerta.classList.remove('d-none');
+                            btnSubmit.disabled = false;
+                        }
+                    })
+                    .catch(err => console.error(err));
+            } else {
+                alerta.classList.add('d-none');
+                btnSubmit.disabled = false;
+            }
+        }
+
+        [selectVet, inputFecha, inputInicio, inputFin].forEach(elem => {
+            if (elem) {
+                elem.addEventListener('change', verificarSolapamiento);
+            }
+        });
+    });
+</script>
+{% endblock %}

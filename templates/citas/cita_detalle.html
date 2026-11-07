@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Cita #{{ cita.id }} - PetCare{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'citas:calendario' %}" class="btn btn-sm btn-outline-secondary mb-2">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver al Calendario
+        </a>
+        <h2 class="fw-bold mb-0">Cita Médica #{{ cita.id }}</h2>
+        <span class="text-muted">{{ cita.fecha|date:"l d de F de Y" }} ({{ cita.hora_inicio|time:"H:i" }} - {{ cita.hora_fin|time:"H:i" }})</span>
+    </div>
+    <div>
+        {% if cita.estado == 'FINALIZADA' %}
+            <span class="badge bg-success fs-6 px-3 py-2">✓ Cita Finalizada</span>
+        {% elif cita.estado == 'CANCELADA' %}
+            <span class="badge bg-danger fs-6 px-3 py-2">Cita Cancelada</span>
+        {% else %}
+            <div class="btn-group">
+                <a href="{% url 'citas:cita_cambiar_estado' cita.id 'CONFIRMADA' %}" class="btn btn-info btn-sm text-dark">Confirmar</a>
+                <a href="{% url 'citas:cita_cambiar_estado' cita.id 'EN_ATENCION' %}" class="btn btn-primary btn-sm">Iniciar Consulta Médica</a>
+                <a href="{% url 'citas:cita_cambiar_estado' cita.id 'CANCELADA' %}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que desea cancelar esta cita?');">Cancelar</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card card-petcare p-4 mb-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">
+                <i class="fa-solid fa-calendar-check text-primary me-2"></i>Detalles de la Cita
+            </h5>
+            <table class="table table-sm table-borderless mb-0">
+                <tr>
+                    <td class="text-muted" style="width: 140px;">Tipo de Cita:</td>
+                    <td><strong>{{ cita.get_tipo_cita_display }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Estado Actual:</td>
+                    <td><strong>{{ cita.get_estado_display }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Profesional:</td>
+                    <td><strong>Dr(a). {{ cita.veterinario.get_full_name|default:cita.veterinario.username }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Motivo:</td>
+                    <td>{{ cita.motivo }}</td>
+                </tr>
+                {% if cita.observaciones %}
+                <tr>
+                    <td class="text-muted">Observaciones:</td>
+                    <td>{{ cita.observaciones }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td class="text-muted">Agendada por:</td>
+                    <td>{{ cita.creado_por.get_full_name|default:cita.creado_por.username|default:"Sistema" }} el {{ cita.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <!-- PACIENTE Y TUTOR -->
+        <div class="card card-petcare p-4 mb-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">
+                <i class="fa-solid fa-paw text-success me-2"></i>Paciente y Tutor
+            </h5>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                {% if cita.mascota.foto %}
+                    <img src="{{ cita.mascota.foto.url }}" alt="{{ cita.mascota.nombre }}" class="avatar-mascota">
+                {% else %}
+                    <div class="avatar-placeholder"><i class="fa-solid fa-paw"></i></div>
+                {% endif %}
+                <div>
+                    <h5 class="fw-bold mb-0">{{ cita.mascota.nombre }}</h5>
+                    <span class="badge bg-light text-primary border">{{ cita.mascota.especie.nombre }}</span>
+                    <small class="text-muted d-block">{{ cita.mascota.raza.nombre|default:"Mestizo" }} • {{ cita.mascota.edad }}</small>
+                </div>
+            </div>
+
+            <div class="small mb-3">
+                <span class="text-muted d-block">Tutor Responsable:</span>
+                <strong>{{ cita.tutor.nombre_completo }}</strong> (RUT: {{ cita.tutor.rut }})
+                <div>📞 <a href="tel:{{ cita.tutor.telefono_principal }}">{{ cita.tutor.telefono_principal }}</a></div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'fichas:ficha_detalle' cita.mascota.id %}" class="btn btn-sm btn-petcare w-100">
+                    <i class="fa-solid fa-notes-medical me-1"></i> Ir a Ficha Clínica
+                </a>
+                {% if cita.estado != 'FINALIZADA' %}
+                <a href="{% url 'fichas:atencion_crear_desde_cita' cita.id %}" class="btn btn-sm btn-success w-100">
+                    <i class="fa-solid fa-stethoscope me-1"></i> Atender Paciente
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

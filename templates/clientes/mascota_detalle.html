@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil de {{ mascota.nombre }} - PetCare{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="d-flex align-items-center gap-3">
+        {% if mascota.foto %}
+            <img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}" class="avatar-mascota" style="width: 80px; height: 80px;">
+        {% else %}
+            <div class="avatar-placeholder" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                <i class="fa-solid fa-paw"></i>
+            </div>
+        {% endif %}
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="fw-bold mb-0">{{ mascota.nombre }}</h2>
+                <span class="badge bg-light text-primary border">{{ mascota.especie.nombre }}</span>
+                {% if mascota.esterilizado %}
+                    <span class="badge bg-success-subtle text-success border border-success">Esterilizado</span>
+                {% endif %}
+            </div>
+            <p class="text-muted mb-0">
+                Raza: {{ mascota.raza.nombre|default:"Mestizo" }} • Tutor: 
+                <a href="{% url 'clientes:tutor_detalle' mascota.tutor.id %}" class="fw-semibold text-decoration-none">
+                    {{ mascota.tutor.nombre_completo }}
+                </a>
+            </p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'fichas:ficha_detalle' mascota.id %}" class="btn btn-petcare">
+            <i class="fa-solid fa-notes-medical me-1"></i> Ver Ficha Clínica Digital
+        </a>
+        <a href="{% url 'citas:cita_crear' %}?tutor_id={{ mascota.tutor.id }}" class="btn btn-outline-primary">
+            <i class="fa-solid fa-calendar-plus me-1"></i> Agendar Cita
+        </a>
+        <a href="{% url 'clientes:mascota_editar' mascota.id %}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- FICHA TÉCNICA -->
+    <div class="col-lg-4">
+        <div class="card card-petcare p-4 mb-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">
+                <i class="fa-solid fa-id-card-clip text-primary me-2"></i>Ficha de Identificación
+            </h5>
+            <ul class="list-unstyled mb-0 small">
+                <li class="mb-2 d-flex justify-content-between">
+                    <span class="text-muted">N° Microchip:</span>
+                    <strong>{{ mascota.numero_microchip|default:"No registrado" }}</strong>
+                </li>
+                <li class="mb-2 d-flex justify-content-between">
+                    <span class="text-muted">Sexo:</span>
+                    <strong>{{ mascota.get_sexo_display }}</strong>
+                </li>
+                <li class="mb-2 d-flex justify-content-between">
+                    <span class="text-muted">Fecha Nacimiento:</span>
+                    <strong>{{ mascota.fecha_nacimiento|date:"d/m/Y" }}</strong>
+                </li>
+                <li class="mb-2 d-flex justify-content-between">
+                    <span class="text-muted">Edad Estimada:</span>
+                    <strong>{{ mascota.edad }}</strong>
+                </li>
+                <li class="mb-2 d-flex justify-content-between">
+                    <span class="text-muted">Peso Actual:</span>
+                    <strong class="text-primary">{{ mascota.peso_actual_kg }} Kg</strong>
+                </li>
+                <li class="mb-2 d-flex justify-content-between">
+                    <span class="text-muted">Color / Pelaje:</span>
+                    <strong>{{ mascota.color|default:"No especificado" }}</strong>
+                </li>
+            </ul>
+
+            {% if mascota.alergias_conocidas or mascota.condiciones_preexistentes %}
+            <div class="mt-3 pt-3 border-top">
+                {% if mascota.alergias_conocidas %}
+                <div class="alert alert-warning py-2 small mb-2">
+                    <strong>⚠️ Alergias:</strong> {{ mascota.alergias_conocidas }}
+                </div>
+                {% endif %}
+                {% if mascota.condiciones_preexistentes %}
+                <div class="alert alert-info py-2 small mb-0">
+                    <strong>ℹ️ Preexistencias:</strong> {{ mascota.condiciones_preexistentes }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- CONTACTO DEL TUTOR -->
+        <div class="card card-petcare p-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">
+                <i class="fa-solid fa-user-shield text-success me-2"></i>Tutor Responsable
+            </h5>
+            <div class="mb-2"><strong>{{ mascota.tutor.nombre_completo }}</strong></div>
+            <div class="small text-muted mb-1"><i class="fa-solid fa-id-card me-1"></i> RUT: {{ mascota.tutor.rut }}</div>
+            <div class="small mb-1"><i class="fa-solid fa-phone text-success me-1"></i> {{ mascota.tutor.telefono_principal }}</div>
+            <div class="small mb-3"><i class="fa-solid fa-envelope text-primary me-1"></i> {{ mascota.tutor.correo }}</div>
+            <a href="{% url 'clientes:tutor_detalle' mascota.tutor.id %}" class="btn btn-sm btn-outline-secondary w-100">
+                Ver Ficha del Tutor
+            </a>
+        </div>
+    </div>
+
+    <!-- SECCIÓN CLÍNICA: CONSULTAS Y VACUNAS -->
+    <div class="col-lg-8">
+        <!-- VACUNAS APLICADAS -->
+        <div class="card card-petcare p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa-solid fa-syringe text-danger me-2"></i>Historial de Vacunación
+                </h5>
+                <a href="{% url 'recordatorios:vacunacion_registrar' %}?mascota_id={{ mascota.id }}" class="btn btn-sm btn-outline-danger">
+                    + Registrar Vacuna
+                </a>
+            </div>
+
+            {% if vacunas %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vacuna</th>
+                            <th>Fecha Aplicada</th>
+                            <th>Próximo Refuerzo</th>
+                            <th>Profesional</th>
+                            <th>Lote</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in vacunas %}
+                        <tr>
+                            <td><strong>{{ v.tipo_vacuna.nombre }}</strong></td>
+                            <td>{{ v.fecha_aplicacion|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ v.fecha_proxima_dosis|date:"d/m/Y" }}
+                                </span>
+                            </td>
+                            <td>Dr(a). {{ v.veterinario.last_name|default:v.veterinario.username }}</td>
+                            <td><code>{{ v.numero_lote|default:"-" }}</code></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted small mb-0">No se registran vacunas previas en el sistema.</p>
+            {% endif %}
+        </div>
+
+        <!-- ÚLTIMAS ATENCIONES MÉDICAS -->
+        <div class="card card-petcare p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa-solid fa-stethoscope text-primary me-2"></i>Consultas y Atenciones Médicas
+                </h5>
+                <a href="{% url 'fichas:atencion_crear' mascota.id %}" class="btn btn-sm btn-petcare">
+                    + Nueva Atención Médica
+                </a>
+            </div>
+
+            {% if atenciones %}
+            <div class="clinical-timeline">
+                {% for a in atenciones %}
+                <div class="mb-4 position-relative">
+                    <div class="timeline-dot"></div>
+                    <div class="card border p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="fw-bold mb-0 text-primary">{{ a.motivo_consulta }}</h6>
+                                <small class="text-muted">
+                                    {{ a.fecha_atencion|date:"l d/m/Y H:i" }} • Dr(a). {{ a.veterinario.get_full_name|default:a.veterinario.username }}
+                                </small>
+                            </div>
+                            <span class="badge bg-light text-dark border">⚖️ {{ a.peso_kg }} Kg | 🌡️ {{ a.temperatura_c }} °C</span>
+                        </div>
+                        <div class="small text-secondary mb-2">
+                            <strong>Diagnóstico:</strong> {{ a.diagnostico_principal }}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <div class="small text-muted">
+                                {% if a.recetas.count %}
+                                    <span class="badge bg-info text-dark me-1">💊 {{ a.recetas.count }} medicamentos</span>
+                                {% endif %}
+                                {% if a.examenes.count %}
+                                    <span class="badge bg-secondary me-1">🧪 {{ a.examenes.count }} exámenes</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'fichas:atencion_detalle' a.id %}" class="btn btn-sm btn-outline-primary">
+                                Ver Detalle / Receta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="fa-solid fa-notes-medical fs-2 mb-2 text-secondary opacity-50"></i>
+                <p>No se registran atenciones clínicas registradas todavía.</p>
+                <a href="{% url 'fichas:atencion_crear' mascota.id %}" class="btn btn-sm btn-petcare">
+                    + Iniciar Primera Consulta
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

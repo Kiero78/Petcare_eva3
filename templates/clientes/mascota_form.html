@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PetCare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card card-petcare p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <h3 class="fw-bold mb-0"><i class="fa-solid fa-paw text-primary me-2"></i>{{ titulo }}</h3>
+                <a href="{% url 'clientes:mascota_lista' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancelar
+                </a>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong class="d-block mb-1">Por favor corrija los siguientes errores:</strong>
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tutor Responsable *</label>
+                        {{ form.tutor }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre de la Mascota *</label>
+                        {{ form.nombre }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Especie *</label>
+                        {{ form.especie }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Raza</label>
+                        {{ form.raza }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Sexo *</label>
+                        {{ form.sexo }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Fecha de Nacimiento *</label>
+                        {{ form.fecha_nacimiento }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Peso Actual (Kg) *</label>
+                        {{ form.peso_actual_kg }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Color / Pelaje</label>
+                        {{ form.color }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">N° de Microchip (opcional)</label>
+                        {{ form.numero_microchip }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Foto de la Mascota</label>
+                        {{ form.foto }}
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch mt-2">
+                            {{ form.esterilizado }}
+                            <label class="form-check-label fw-semibold" for="{{ form.esterilizado.id_for_label }}">
+                                ¿La mascota se encuentra esterilizada o castrada?
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Alergias Conocidas</label>
+                        {{ form.alergias_conocidas }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Condiciones Preexistentes o Crónicas</label>
+                        {{ form.condiciones_preexistentes }}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="{% url 'clientes:mascota_lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-petcare px-4">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Mascota
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Carga asíncrona de razas según la especie seleccionada
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectEspecie = document.getElementById('select-especie');
+        const selectRaza = document.getElementById('select-raza');
+
+        if (selectEspecie && selectRaza) {
+            selectEspecie.addEventListener('change', function() {
+                const especieId = this.value;
+                if (!especieId) return;
+
+                fetch(`/clientes/api/especie/${especieId}/razas/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const valorActual = selectRaza.value;
+                        selectRaza.innerHTML = '<option value="">---------</option>';
+                        data.forEach(raza => {
+                            const opt = document.createElement('option');
+                            opt.value = raza.id;
+                            opt.textContent = raza.nombre;
+                            if (valorActual && valorActual == raza.id) {
+                                opt.selected = true;
+                            }
+                            selectRaza.appendChild(opt);
+                        });
+                    })
+                    .catch(err => console.error('Error cargando razas:', err));
+            });
+        }
+    });
+</script>
+{% endblock %}

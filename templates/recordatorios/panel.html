@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Medicina Preventiva y Recordatorios - PetCare{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-bell text-danger me-2"></i>Panel de Medicina Preventiva y Recordatorios</h2>
+        <p class="text-muted mb-0">Seguimiento automatizado de esquemas de vacunación y controles periódicos</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'recordatorios:vacunacion_registrar' %}" class="btn btn-danger">
+            <i class="fa-solid fa-syringe me-1"></i> + Registrar Vacuna
+        </a>
+        <a href="{% url 'recordatorios:recordatorio_crear' %}" class="btn btn-petcare">
+            <i class="fa-solid fa-plus-circle me-1"></i> + Nuevo Recordatorio
+        </a>
+    </div>
+</div>
+
+<!-- TARJETAS DE RESUMEN SANITARIO -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card card-petcare kpi-card kpi-danger p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-danger small fw-semibold text-uppercase">Alertas Vencidas</span>
+                    <h3 class="fw-bold mb-0 mt-1 text-danger">{{ vencidos.count }}</h3>
+                    <small class="text-muted">Requieren contacto urgente con tutor</small>
+                </div>
+                <div class="fs-1 text-danger opacity-25">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-petcare kpi-card kpi-warning p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-warning small fw-semibold text-uppercase">Próximos 15 Días</span>
+                    <h3 class="fw-bold mb-0 mt-1 text-warning">{{ proximos.count }}</h3>
+                    <small class="text-muted">Recordatorios a notificar</small>
+                </div>
+                <div class="fs-1 text-warning opacity-25">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-petcare kpi-card kpi-success p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-success small fw-semibold text-uppercase">Total Histórico</span>
+                    <h3 class="fw-bold mb-0 mt-1 text-success">{{ recordatorios.count }}</h3>
+                    <small class="text-muted">Alertas registradas en el sistema</small>
+                </div>
+                <div class="fs-1 text-success opacity-25">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PESTAÑAS: ALERTAS CRÍTICAS / TODAS / HISTORIAL DE VACUNAS -->
+<ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-urgentes">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> Alertas Vencidas y Urgentes ({{ vencidos.count }})
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-proximos">
+            <i class="fa-solid fa-clock me-1"></i> Próximos Vencimientos ({{ proximos.count }})
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-vacunaciones">
+            <i class="fa-solid fa-syringe me-1"></i> Historial de Vacunas Aplicadas
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-todos">
+            <i class="fa-solid fa-list me-1"></i> Todos los Recordatorios
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+    <!-- PESTAÑA 1: VENCIDOS Y URGENTES -->
+    <div class="tab-pane fade show active" id="tab-urgentes">
+        <div class="card card-petcare overflow-hidden shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-danger text-danger">
+                        <tr>
+                            <th>Fecha Límite</th>
+                            <th>Paciente</th>
+                            <th>Tutor y Contacto</th>
+                            <th>Motivo Sanitario</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acción Rápida</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in vencidos %}
+                        <tr>
+                            <td>
+                                <strong class="text-danger">{{ r.fecha_programada|date:"d/m/Y" }}</strong>
+                                <small class="d-block text-muted">Vencido hace {{ r.dias_restantes|stringformat:"+d"|slice:"1:" }} día(s)</small>
+                            </td>
+                            <td>
+                                <strong>{{ r.mascota.nombre }}</strong>
+                                <small class="d-block text-muted">{{ r.mascota.especie.nombre }}</small>
+                            </td>
+                            <td>
+                                {{ r.tutor.nombre_completo }}
+                                <small class="d-block text-muted">📞 {{ r.tutor.telefono_principal }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ r.get_tipo_display }}</span>
+                                <div class="small fw-semibold mt-1">{{ r.titulo }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-danger">{{ r.get_estado_display }}</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a href="{% url 'recordatorios:recordatorio_enviar_whatsapp' r.id %}" target="_blank" class="btn btn-sm btn-success" title="Notificar vía WhatsApp">
+                                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                    <a href="{% url 'citas:cita_crear' %}?tutor_id={{ r.tutor.id }}" class="btn btn-sm btn-outline-primary" title="Agendar Cita">
+                                        <i class="fa-solid fa-calendar-plus"></i> Agendar
+                                    </a>
+                                    <a href="{% url 'recordatorios:recordatorio_cambiar_estado' r.id 'CONFIRMADO' %}" class="btn btn-sm btn-outline-secondary" title="Marcar como Resuelto">
+                                        <i class="fa-solid fa-check"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-circle-check text-success fs-3 d-block mb-2"></i>
+                                ¡Excelente! No hay alertas de vacunación ni controles vencidos en este momento.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 2: PRÓXIMOS VENCIMIENTOS -->
+    <div class="tab-pane fade" id="tab-proximos">
+        <div class="card card-petcare overflow-hidden shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-warning text-dark">
+                        <tr>
+                            <th>Fecha Prevista</th>
+                            <th>Paciente</th>
+                            <th>Tutor</th>
+                            <th>Tipo y Detalle</th>
+                            <th>Canal</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in proximos %}
+                        <tr>
+                            <td>
+                                <strong>{{ r.fecha_programada|date:"d/m/Y" }}</strong>
+                                <small class="d-block text-muted">En {{ r.dias_restantes }} día(s)</small>
+                            </td>
+                            <td>
+                                <strong>{{ r.mascota.nombre }}</strong>
+                                <small class="d-block text-muted">{{ r.mascota.especie.nombre }}</small>
+                            </td>
+                            <td>
+                                {{ r.tutor.nombre_completo }}
+                                <small class="d-block text-muted">📞 {{ r.tutor.telefono_principal }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ r.get_tipo_display }}</span>
+                                <div class="small fw-semibold mt-1">{{ r.titulo }}</div>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ r.get_medio_envio_display }}</span></td>
+                            <td class="text-end">
+                                <a href="{% url 'recordatorios:recordatorio_enviar_whatsapp' r.id %}" target="_blank" class="btn btn-sm btn-success">
+                                    <i class="fa-brands fa-whatsapp me-1"></i> Enviar Recordatorio
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No hay recordatorios programados para los próximos 15 días.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 3: HISTORIAL DE VACUNAS -->
+    <div class="tab-pane fade" id="tab-vacunaciones">
+        <div class="card card-petcare overflow-hidden shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vacuna</th>
+                            <th>Paciente</th>
+                            <th>Tutor</th>
+                            <th>Fecha Aplicada</th>
+                            <th>Próximo Refuerzo</th>
+                            <th>Profesional</th>
+                            <th>Lote</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in ultimas_vacunaciones %}
+                        <tr>
+                            <td><strong>{{ v.tipo_vacuna.nombre }}</strong></td>
+                            <td>{{ v.mascota.nombre }} ({{ v.mascota.especie.nombre }})</td>
+                            <td>{{ v.mascota.tutor.nombre_completo }}</td>
+                            <td>{{ v.fecha_aplicacion|date:"d/m/Y" }}</td>
+                            <td><strong class="text-primary">{{ v.fecha_proxima_dosis|date:"d/m/Y" }}</strong></td>
+                            <td>Dr(a). {{ v.veterinario.last_name|default:v.veterinario.username }}</td>
+                            <td><code>{{ v.numero_lote|default:"-" }}</code></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                No se registran vacunas aplicadas en el historial.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 4: TODOS LOS RECORDATORIOS -->
+    <div class="tab-pane fade" id="tab-todos">
+        <div class="card card-petcare overflow-hidden shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Paciente</th>
+                            <th>Tutor</th>
+                            <th>Título</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recordatorios %}
+                        <tr>
+                            <td>{{ r.fecha_programada|date:"d/m/Y" }}</td>
+                            <td><strong>{{ r.mascota.nombre }}</strong></td>
+                            <td>{{ r.tutor.nombre_completo }}</td>
+                            <td>{{ r.titulo }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ r.get_tipo_display }}</span></td>
+                            <td>
+                                {% if r.estado == 'CONFIRMADO' %}
+                                    <span class="badge bg-success">Confirmado</span>
+                                {% elif r.estado == 'ENVIADO' %}
+                                    <span class="badge bg-info text-dark">Enviado</span>
+                                {% elif r.estado == 'PENDIENTE' %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% elif r.estado == 'VENCIDO' %}
+                                    <span class="badge bg-danger">Vencido</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ r.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No hay recordatorios registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

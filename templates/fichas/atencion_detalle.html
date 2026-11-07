@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}Consulta Médica: {{ mascota.nombre }} - PetCare{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <a href="{% url 'fichas:ficha_detalle' mascota.id %}" class="btn btn-sm btn-outline-secondary mb-2">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver a Ficha Clínica
+        </a>
+        <h2 class="fw-bold mb-0">Consulta Médica - {{ atencion.fecha_atencion|date:"d/m/Y H:i" }}</h2>
+        <span class="text-muted">Paciente: <strong>{{ mascota.nombre }}</strong> ({{ mascota.especie.nombre }}) | Dr(a). {{ atencion.veterinario.get_full_name|default:atencion.veterinario.username }}</span>
+    </div>
+    <div class="d-flex gap-2">
+        {% if recetas %}
+        <a href="{% url 'fichas:receta_imprimir' atencion.id %}" target="_blank" class="btn btn-outline-primary">
+            <i class="fa-solid fa-print me-1"></i> Imprimir Receta Médica
+        </a>
+        {% endif %}
+        <a href="{% url 'citas:cita_crear' %}?tutor_id={{ tutor.id }}" class="btn btn-petcare">
+            <i class="fa-solid fa-calendar-plus me-1"></i> Agendar Próximo Control
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- COLUMNA PRINCIPAL: REPORTE CLÍNICO -->
+    <div class="col-lg-7">
+        <!-- SIGNOS VITALES -->
+        <div class="card card-petcare p-4 mb-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">
+                <i class="fa-solid fa-heart-pulse text-danger me-2"></i>Signos Vitales y Parámetros
+            </h5>
+            <div class="row g-3 text-center">
+                <div class="col-sm-4">
+                    <div class="p-3 bg-light rounded-3">
+                        <span class="text-muted small d-block">Peso</span>
+                        <strong class="fs-4 text-primary">{{ atencion.peso_kg }}</strong> <small>Kg</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-3 bg-light rounded-3">
+                        <span class="text-muted small d-block">Temperatura</span>
+                        <strong class="fs-4 text-danger">{{ atencion.temperatura_c }}</strong> <small>°C</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-3 bg-light rounded-3">
+                        <span class="text-muted small d-block">Mucosas</span>
+                        <strong class="fs-6">{{ atencion.get_mucosas_display }}</strong>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-2 border rounded">
+                        <small class="text-muted d-block">FC</small>
+                        <strong>{{ atencion.frecuencia_cardiaca_lpm|default:"-" }}</strong> <small>lpm</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-2 border rounded">
+                        <small class="text-muted d-block">FR</small>
+                        <strong>{{ atencion.frecuencia_respiratoria_rpm|default:"-" }}</strong> <small>rpm</small>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="p-2 border rounded">
+                        <small class="text-muted d-block">TLLC</small>
+                        <strong>{{ atencion.tiempo_llenado_capilar_seg|default:"-" }}</strong> <small>seg</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUICIO CLÍNICO Y PLAN -->
+        <div class="card card-petcare p-4 mb-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">
+                <i class="fa-solid fa-stethoscope text-primary me-2"></i>Evaluación y Diagnóstico
+            </h5>
+            <div class="mb-3">
+                <span class="text-muted small d-block fw-semibold">Motivo de Consulta:</span>
+                <div>{{ atencion.motivo_consulta }}</div>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted small d-block fw-semibold">Anamnesis:</span>
+                <div class="p-2 bg-light rounded small">{{ atencion.anamnesis }}</div>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted small d-block fw-semibold">Hallazgos del Examen Físico:</span>
+                <div class="p-2 bg-light rounded small">{{ atencion.examen_fisico }}</div>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted small d-block fw-semibold">Diagnóstico Principal:</span>
+                <div class="alert alert-danger py-2 mb-0 fw-semibold">{{ atencion.diagnostico_principal }}</div>
+            </div>
+            {% if atencion.diagnosticos_diferenciales %}
+            <div class="mb-3">
+                <span class="text-muted small d-block fw-semibold">Diagnósticos Diferenciales:</span>
+                <div class="small">{{ atencion.diagnosticos_diferenciales }}</div>
+            </div>
+            {% endif %}
+            <div class="mb-3">
+                <span class="text-muted small d-block fw-semibold">Tratamiento Aplicado en Clínica:</span>
+                <div class="p-2 bg-light rounded small">{{ atencion.tratamiento_aplicado }}</div>
+            </div>
+            {% if atencion.indicaciones_tutor %}
+            <div class="mb-0">
+                <span class="text-muted small d-block fw-semibold">Indicaciones para el Hogar:</span>
+                <div class="p-2 bg-warning-subtle rounded small">{{ atencion.indicaciones_tutor }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: RECETAS MÉDICAS Y EXÁMENES -->
+    <div class="col-lg-5">
+        <!-- RECETAS MÉDICAS -->
+        <div class="card card-petcare p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa-solid fa-pills text-success me-2"></i>Receta Médica ({{ recetas.count }})
+                </h5>
+                <button type="button" class="btn btn-sm btn-petcare" data-bs-toggle="modal" data-bs-target="#modalReceta">
+                    <i class="fa-solid fa-plus me-1"></i> Fármaco
+                </button>
+            </div>
+
+            {% if recetas %}
+            <div class="list-group list-group-flush">
+                {% for r in recetas %}
+                <div class="list-group-item px-0 py-2 border-bottom">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong class="text-primary">{{ r.medicamento }}</strong>
+                            {% if r.presentacion %}<small class="text-muted">({{ r.presentacion }})</small>{% endif %}
+                            <div class="small">
+                                <strong>Dosis:</strong> {{ r.dosis }} • <strong>Frecuencia:</strong> {{ r.frecuencia }}
+                            </div>
+                            <div class="small text-muted">
+                                <strong>Duración:</strong> {{ r.duracion }}
+                            </div>
+                            {% if r.indicaciones_especiales %}
+                            <small class="text-secondary d-block fst-italic">"{{ r.indicaciones_especiales }}"</small>
+                            {% endif %}
+                        </div>
+                        <form method="POST" action="{% url 'fichas:receta_eliminar' r.id %}" onsubmit="return confirm('¿Eliminar fármaco de la receta?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger border-0">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'fichas:receta_imprimir' atencion.id %}" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                    <i class="fa-solid fa-print me-1"></i> Vista de Impresión Oficial
+                </a>
+            </div>
+            {% else %}
+            <div class="text-center py-3 text-muted small">
+                No se han prescrito medicamentos para esta consulta.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- EXÁMENES COMPLEMENTARIOS -->
+        <div class="card card-petcare p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa-solid fa-flask-vial text-info me-2"></i>Exámenes Clínicos
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalExamen">
+                    <i class="fa-solid fa-plus me-1"></i> Examen
+                </button>
+            </div>
+
+            {% if examenes %}
+            <div class="list-group list-group-flush">
+                {% for e in examenes %}
+                <div class="list-group-item px-0 py-2 border-bottom">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <strong>{{ e.nombre_examen }}</strong>
+                        <span class="badge {% if e.estado == 'COMPLETADO' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                            {{ e.get_estado_display }}
+                        </span>
+                    </div>
+                    <div class="small text-muted mb-1">
+                        Categoría: {{ e.tipo_examen }} | Solicitado: {{ e.fecha_solicitud|date:"d/m/Y" }}
+                    </div>
+                    {% if e.resultado_informe %}
+                    <div class="small p-2 bg-light rounded mb-1">
+                        <strong>Resultado:</strong> {{ e.resultado_informe }}
+                    </div>
+                    {% endif %}
+                    {% if e.archivo_adjunto %}
+                    <a href="{{ e.archivo_adjunto.url }}" target="_blank" class="btn btn-sm btn-outline-success py-0 px-2 mt-1">
+                        <i class="fa-solid fa-paperclip me-1"></i> Ver Informe Adjunto
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-3 text-muted small">
+                No se han solicitado exámenes complementarios.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- MODAL AGREGAR RECETA MÉDICA -->
+<div class="modal fade" id="modalReceta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'fichas:receta_agregar' atencion.id %}">
+                {% csrf_token %}
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-pills text-success me-2"></i>Agregar Fármaco a la Receta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Medicamento / Principio Activo *</label>
+                        {{ receta_form.medicamento }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Presentación</label>
+                        {{ receta_form.presentacion }}
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Dosis *</label>
+                            {{ receta_form.dosis }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Frecuencia *</label>
+                            {{ receta_form.frecuencia }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Duración del Tratamiento *</label>
+                        {{ receta_form.duracion }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Indicaciones Especiales</label>
+                        {{ receta_form.indicaciones_especiales }}
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-petcare btn-sm">Agregar Fármaco</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL SOLICITAR EXAMEN CLÍNICO -->
+<div class="modal fade" id="modalExamen" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'fichas:examen_agregar' atencion.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-flask-vial text-info me-2"></i>Solicitar / Registrar Examen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre del Examen *</label>
+                        {{ examen_form.nombre_examen }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Categoría *</label>
+                        {{ examen_form.tipo_examen }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Justificación Clínica</label>
+                        {{ examen_form.justificacion_clinica }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Estado</label>
+                        {{ examen_form.estado }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Informe / Conclusiones del Examen</label>
+                        {{ examen_form.resultado_informe }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Archivo de Resultados (PDF o Imagen)</label>
+                        {{ examen_form.archivo_adjunto }}
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-petcare btn-sm">Guardar Examen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

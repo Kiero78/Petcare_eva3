@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Citas - PetCare{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-list-check text-primary me-2"></i>Control de Citas Médicas</h2>
+        <p class="text-muted mb-0">Gestión y seguimiento de atenciones programadas</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'citas:calendario' %}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-calendar-week me-1"></i> Ver Calendario
+        </a>
+        <a href="{% url 'citas:cita_crear' %}" class="btn btn-petcare">
+            <i class="fa-solid fa-calendar-plus me-1"></i> + Agendar Nueva Cita
+        </a>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<div class="card card-petcare p-3 mb-4">
+    <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-3">
+            <input type="date" name="fecha" value="{{ fecha_filtro }}" class="form-control" title="Filtrar por fecha">
+        </div>
+        <div class="col-md-4">
+            <select name="veterinario" class="form-select">
+                <option value="">Todos los Profesionales</option>
+                {% for v in veterinarios %}
+                <option value="{{ v.id }}" {% if veterinario_id == v.id|stringformat:"s" %}selected{% endif %}>
+                    Dr(a). {{ v.get_full_name|default:v.username }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="estado" class="form-select">
+                <option value="">Todos los Estados</option>
+                {% for code, label in estados %}
+                <option value="{{ code }}" {% if estado_filtro == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-petcare w-100">Filtrar</button>
+            {% if fecha_filtro or veterinario_id or estado_filtro %}
+            <a href="{% url 'citas:citas_lista' %}" class="btn btn-outline-secondary" title="Limpiar"><i class="fa-solid fa-xmark"></i></a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- TABLA DE CITAS -->
+{% if citas %}
+<div class="card card-petcare overflow-hidden shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha y Horario</th>
+                    <th>Mascota</th>
+                    <th>Tutor</th>
+                    <th>Veterinario</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in citas %}
+                <tr>
+                    <td><code>#{{ c.id }}</code></td>
+                    <td>
+                        <strong>{{ c.fecha|date:"d/m/Y" }}</strong>
+                        <small class="d-block text-muted">{{ c.hora_inicio|time:"H:i" }} - {{ c.hora_fin|time:"H:i" }}</small>
+                    </td>
+                    <td>
+                        <strong class="text-primary">{{ c.mascota.nombre }}</strong>
+                        <small class="d-block text-muted">{{ c.mascota.especie.nombre }}</small>
+                    </td>
+                    <td>
+                        {{ c.tutor.nombre_completo }}
+                        <small class="d-block text-muted">📞 {{ c.tutor.telefono_principal }}</small>
+                    </td>
+                    <td>Dr(a). {{ c.veterinario.last_name|default:c.veterinario.username }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ c.get_tipo_cita_display }}</span></td>
+                    <td>
+                        {% if c.estado == 'PENDIENTE' %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% elif c.estado == 'CONFIRMADA' %}
+                            <span class="badge bg-info text-dark">Confirmada</span>
+                        {% elif c.estado == 'EN_ATENCION' %}
+                            <span class="badge bg-primary">En Atención</span>
+                        {% elif c.estado == 'FINALIZADA' %}
+                            <span class="badge bg-success">Finalizada</span>
+                        {% elif c.estado == 'CANCELADA' %}
+                            <span class="badge bg-danger">Cancelada</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ c.get_estado_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'citas:cita_detalle' c.id %}" class="btn btn-sm btn-outline-primary">
+                            Ver Detalle
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card card-petcare text-center py-5">
+    <i class="fa-solid fa-calendar-xmark fs-1 text-muted mb-3 opacity-50"></i>
+    <h5 class="text-muted">No se encontraron citas médicas con los criterios especificados.</h5>
+    <div class="mt-2">
+        <a href="{% url 'citas:cita_crear' %}" class="btn btn-petcare">+ Agendar Cita</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

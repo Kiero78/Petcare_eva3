@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - PetCare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card card-petcare p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <div>
+                    <h3 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-stethoscope me-2"></i>{{ titulo }}</h3>
+                    <p class="text-muted small mb-0">Paciente: <strong>{{ mascota.nombre }}</strong> ({{ mascota.especie.nombre }}) | Tutor: {{ mascota.tutor.nombre_completo }}</p>
+                </div>
+                <a href="{% url 'fichas:ficha_detalle' mascota.id %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancelar
+                </a>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong class="d-block mb-1">Errores encontrados en el registro clínico:</strong>
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- SECCIÓN 1: MOTIVO Y ANAMNESIS -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-circle-question me-1 text-primary"></i> 1. Motivo y Anamnesis</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Motivo de Consulta *</label>
+                        {{ form.motivo_consulta }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Anamnesis / Historia del Cuadro Clínico *</label>
+                        {{ form.anamnesis }}
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: SIGNOS VITALES Y EXAMEN FÍSICO -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-heart-pulse me-1 text-danger"></i> 2. Signos Vitales y Examen Físico</h5>
+                <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Peso (Kg) *</label>
+                        {{ form.peso_kg }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Temperatura (°C) *</label>
+                        {{ form.temperatura_c }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Frecuencia Cardíaca (lpm)</label>
+                        {{ form.frecuencia_cardiaca_lpm }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Frecuencia Resp. (rpm)</label>
+                        {{ form.frecuencia_respiratoria_rpm }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tiempo Llenado Capilar (seg)</label>
+                        {{ form.tiempo_llenado_capilar_seg }}
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Coloración de Mucosas</label>
+                        {{ form.mucosas }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Hallazgos del Examen Físico</label>
+                        {{ form.examen_fisico }}
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: DIAGNÓSTICO Y TRATAMIENTO -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-clipboard-check me-1 text-success"></i> 3. Diagnóstico y Tratamiento</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-danger">Diagnóstico Presuntivo / Definitivo *</label>
+                        {{ form.diagnostico_principal }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Diagnósticos Diferenciales</label>
+                        {{ form.diagnosticos_diferenciales }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Tratamiento Aplicado en Clínica *</label>
+                        {{ form.tratamiento_aplicado }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Indicaciones para el Hogar</label>
+                        {{ form.indicaciones_tutor }}
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: SEGUIMIENTO Y CONTROL -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-clock-rotate-left me-1 text-info"></i> 4. Control Posterior</h5>
+                <div class="row g-3 mb-4 p-3 bg-light rounded-3 border align-items-center">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch">
+                            {{ form.requiere_control }}
+                            <label class="form-check-label fw-semibold" for="{{ form.requiere_control.id_for_label }}">
+                                ¿Requiere Control Posterior de Seguimiento?
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-1">Generará automáticamente una alerta preventiva en el calendario.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Días para el Próximo Control</label>
+                        {{ form.dias_proximo_control }}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="{% url 'fichas:ficha_detalle' mascota.id %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-petcare px-4">
+                        <i class="fa-solid fa-file-signature me-1"></i> Finalizar y Guardar Atención Médica
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
