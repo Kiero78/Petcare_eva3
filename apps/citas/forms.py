@@ -47,7 +47,7 @@ class CitaForm(forms.ModelForm):
 
 def models_Q_or_staff():
     from django.db.models import Q
-    return Q(perfil__rol='VETERINARIO') | Q(is_superuser=True) | Q(is_staff=True)
+    return Q(perfil__rol='VETERINARIO') | Q(is_superuser=True)
 
 
 class HorarioDisponibilidadForm(forms.ModelForm):

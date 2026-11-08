@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,15 +14,19 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- CSS Personalizado PetCare -->
     <link rel="stylesheet" href="{% static 'css/petcare.css' %}">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
 
     <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
@@ -32,7 +37,8 @@
                 <span>PetCare <small class="fw-normal fs-6 opacity-75">| Clínica</small></span>
             </a>
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -40,7 +46,8 @@
                 {% if user.is_authenticated %}
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                            href="{% url 'dashboard' %}">
                             <i class="fa-solid fa-chart-pie me-1"></i> Dashboard
                         </a>
                     </li>
@@ -51,11 +58,18 @@
                             <i class="fa-solid fa-users me-1"></i> Pacientes y Tutores
                         </a>
                         <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item" href="{% url 'clientes:tutor_lista' %}"><i class="fa-solid fa-user-group text-primary me-2"></i> Directorio de Tutores</a></li>
-                            <li><a class="dropdown-item" href="{% url 'clientes:mascota_lista' %}"><i class="fa-solid fa-paw text-success me-2"></i> Directorio de Mascotas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'clientes:tutor_crear' %}"><i class="fa-solid fa-user-plus text-info me-2"></i> + Nuevo Tutor</a></li>
-                            <li><a class="dropdown-item" href="{% url 'clientes:mascota_crear' %}"><i class="fa-solid fa-plus-circle text-warning me-2"></i> + Nueva Mascota</a></li>
+                            <li><a class="dropdown-item" href="{% url 'clientes:tutor_lista' %}"><i
+                                        class="fa-solid fa-user-group text-primary me-2"></i> Directorio de Tutores</a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'clientes:mascota_lista' %}"><i
+                                        class="fa-solid fa-paw text-success me-2"></i> Directorio de Mascotas</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'clientes:tutor_crear' %}"><i
+                                        class="fa-solid fa-user-plus text-info me-2"></i> + Nuevo Tutor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'clientes:mascota_crear' %}"><i
+                                        class="fa-solid fa-plus-circle text-warning me-2"></i> + Nueva Mascota</a></li>
                         </ul>
                     </li>
 
@@ -64,15 +78,24 @@
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fa-solid fa-calendar-days me-1"></i> Agenda Médica
                             {% if total_citas_hoy %}
-                                <span class="badge bg-light text-dark ms-1">{{ total_citas_hoy }}</span>
+                            <span class="badge bg-light text-dark ms-1">{{ total_citas_hoy }}</span>
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item" href="{% url 'citas:calendario' %}"><i class="fa-solid fa-calendar-week text-primary me-2"></i> Calendario Dinámico</a></li>
-                            <li><a class="dropdown-item" href="{% url 'citas:citas_lista' %}"><i class="fa-solid fa-list-check text-secondary me-2"></i> Listado de Citas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'citas:cita_crear' %}"><i class="fa-solid fa-calendar-plus text-success me-2"></i> + Agendar Cita</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'citas:disponibilidad_lista' %}"><i class="fa-solid fa-user-clock text-info me-2"></i> Horarios de Disponibilidad</a></li>
+                            <li><a class="dropdown-item" href="{% url 'citas:calendario' %}"><i
+                                        class="fa-solid fa-calendar-week text-primary me-2"></i> Calendario Dinámico</a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'citas:citas_lista' %}"><i
+                                        class="fa-solid fa-list-check text-secondary me-2"></i> Listado de Citas</a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'citas:cita_crear' %}"><i
+                                        class="fa-solid fa-calendar-plus text-success me-2"></i> + Agendar Cita</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'citas:disponibilidad_lista' %}"><i
+                                        class="fa-solid fa-user-clock text-info me-2"></i> Horarios de
+                                    Disponibilidad</a></li>
                         </ul>
                     </li>
 
@@ -81,23 +104,27 @@
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fa-solid fa-bell me-1"></i> Recordatorios y Vacunas
                             {% if total_alertas_sanitarias %}
-                                <span class="badge bg-danger ms-1">{{ total_alertas_sanitarias }}</span>
+                            <span class="badge bg-danger ms-1">{{ total_alertas_sanitarias }}</span>
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item" href="{% url 'recordatorios:panel' %}"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Panel de Alertas Preventivas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'recordatorios:vacunacion_registrar' %}"><i class="fa-solid fa-syringe text-danger me-2"></i> + Registrar Vacuna</a></li>
-                            <li><a class="dropdown-item" href="{% url 'recordatorios:recordatorio_crear' %}"><i class="fa-solid fa-clock text-primary me-2"></i> + Nuevo Recordatorio</a></li>
+                            <li><a class="dropdown-item" href="{% url 'recordatorios:panel' %}"><i
+                                        class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Panel de Alertas
+                                    Preventivas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'recordatorios:vacunacion_registrar' %}"><i
+                                        class="fa-solid fa-syringe text-danger me-2"></i> + Registrar Vacuna</a></li>
+                            <li><a class="dropdown-item" href="{% url 'recordatorios:recordatorio_crear' %}"><i
+                                        class="fa-solid fa-clock text-primary me-2"></i> + Nuevo Recordatorio</a></li>
                         </ul>
                     </li>
 
-                    <!-- Enlaces rápidos API y Admin -->
+                    <!-- Enlaces rápidos API y Admin (Solo para Administradores) -->
+                    {% if user.is_superuser or user.perfil.rol == 'ADMIN' %}
                     <li class="nav-item">
                         <a class="nav-link" href="/api/" target="_blank" title="API REST DRF">
                             <i class="fa-solid fa-code me-1"></i> API DRF
                         </a>
                     </li>
-                    {% if user.is_staff or user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link text-warning fw-semibold" href="/admin/" target="_blank">
                             <i class="fa-solid fa-lock me-1"></i> Django Admin
@@ -111,10 +138,12 @@
                     <div class="text-end d-none d-md-block">
                         <div class="fw-bold fs-7">{{ user.get_full_name|default:user.username }}</div>
                         <small class="badge bg-light text-dark">
-                            {% if user.perfil %}{{ user.perfil.get_rol_display }}{% elif user.is_superuser %}Administrador Global{% else %}Usuario{% endif %}
+                            {% if user.perfil %}{{ user.perfil.get_rol_display }}{% elif user.is_superuser
+                            %}Administrador Global{% else %}Usuario{% endif %}
                         </small>
                     </div>
-                    <a href="{% url 'usuarios:logout' %}" class="btn btn-outline-light btn-sm rounded-pill px-3" title="Cerrar sesión">
+                    <a href="{% url 'usuarios:logout' %}" class="btn btn-outline-light btn-sm rounded-pill px-3"
+                        title="Cerrar sesión">
                         <i class="fa-solid fa-right-from-bracket"></i> Salir
                     </a>
                 </div>
@@ -134,16 +163,17 @@
     <!-- MENSAJES FLASH (Django Messages) -->
     <div class="container-fluid px-lg-4 mt-3">
         {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
-                {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check me-2"></i>{% endif %}
-                {% if message.tags == 'error' or message.tags == 'danger' %}<i class="fa-solid fa-circle-xmark me-2"></i>{% endif %}
-                {% if message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation me-2"></i>{% endif %}
-                {% if message.tags == 'info' %}<i class="fa-solid fa-circle-info me-2"></i>{% endif %}
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+            {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check me-2"></i>{% endif %}
+            {% if message.tags == 'error' or message.tags == 'danger' %}<i class="fa-solid fa-circle-xmark me-2"></i>{%
+            endif %}
+            {% if message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation me-2"></i>{% endif %}
+            {% if message.tags == 'info' %}<i class="fa-solid fa-circle-info me-2"></i>{% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
         {% endif %}
     </div>
 
@@ -168,4 +198,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
+
 </html>

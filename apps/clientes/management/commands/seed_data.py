@@ -32,10 +32,12 @@ class Command(BaseCommand):
                     'first_name': fname,
                     'last_name': lname,
                     'email': email,
-                    'is_staff': True,
+                    'is_staff': is_super or rol == 'ADMIN',
                     'is_superuser': is_super
                 }
             )
+            user.is_staff = is_super or rol == 'ADMIN'
+            user.is_superuser = is_super
             user.set_password(pwd)
             user.save()
 

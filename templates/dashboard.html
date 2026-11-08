@@ -5,8 +5,10 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold mb-1"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Panel de Control Clínico</h2>
-        <p class="text-muted mb-0">Resumen operativo al día de hoy, <strong>{{ hoy|date:"l d de F de Y" }}</strong></p>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Panel de Control Clínico
+        </h2>
+        <p class="text-muted mb-0">Resumen operativo al día de hoy, <strong>{{ hoy|date:"l d \d\e F \d\e Y"|capfirst
+                }}</strong></p>
     </div>
     <div class="d-flex gap-2">
         <a href="{% url 'citas:cita_crear' %}" class="btn btn-petcare">
@@ -41,7 +43,8 @@
                 <div>
                     <span class="text-muted small fw-semibold text-uppercase">Citas para Hoy</span>
                     <h3 class="fw-bold mb-0 mt-1 text-success">{{ total_citas_hoy }}</h3>
-                    <small class="text-muted">{{ citas_pendientes }} pendientes | {{ citas_atendidas }} finalizadas</small>
+                    <small class="text-muted">{{ citas_pendientes }} pendientes | {{ citas_atendidas }}
+                        finalizadas</small>
                 </div>
                 <div class="fs-1 text-success opacity-25">
                     <i class="fa-solid fa-calendar-check"></i>
@@ -56,7 +59,8 @@
                 <div>
                     <span class="text-muted small fw-semibold text-uppercase">Alertas Sanitarias</span>
                     <h3 class="fw-bold mb-0 mt-1 text-danger">{{ total_alertas }}</h3>
-                    <small class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Vacunas y controles por contactar</small>
+                    <small class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Vacunas y controles
+                        por contactar</small>
                 </div>
                 <div class="fs-1 text-danger opacity-25">
                     <i class="fa-solid fa-syringe"></i>
@@ -124,15 +128,15 @@
                             </td>
                             <td>
                                 {% if c.estado == 'PENDIENTE' %}
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                <span class="badge bg-warning text-dark">Pendiente</span>
                                 {% elif c.estado == 'CONFIRMADA' %}
-                                    <span class="badge bg-info text-dark">Confirmada</span>
+                                <span class="badge bg-info text-dark">Confirmada</span>
                                 {% elif c.estado == 'EN_ATENCION' %}
-                                    <span class="badge bg-primary">En Atención</span>
+                                <span class="badge bg-primary">En Atención</span>
                                 {% elif c.estado == 'FINALIZADA' %}
-                                    <span class="badge bg-success">Finalizada</span>
+                                <span class="badge bg-success">Finalizada</span>
                                 {% else %}
-                                    <span class="badge bg-secondary">{{ c.get_estado_display }}</span>
+                                <span class="badge bg-secondary">{{ c.get_estado_display }}</span>
                                 {% endif %}
                             </td>
                             <td class="text-end">
@@ -159,7 +163,8 @@
         <!-- ÚLTIMAS ATENCIONES / FICHAS CLÍNICAS -->
         <div class="card card-petcare p-3">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0"><i class="fa-solid fa-notes-medical text-success me-2"></i>Últimas Atenciones Clínicas</h5>
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-notes-medical text-success me-2"></i>Últimas Atenciones
+                    Clínicas</h5>
                 <a href="{% url 'clientes:mascota_lista' %}" class="btn btn-sm btn-outline-secondary">Ver Pacientes</a>
             </div>
 
@@ -173,7 +178,8 @@
                             Diagnóstico: {{ a.diagnostico_principal|truncatechars:50 }}
                         </div>
                         <small class="text-secondary">
-                            Atendido por Dr(a). {{ a.veterinario.last_name|default:a.veterinario.username }} el {{ a.fecha_atencion|date:"d/m/Y H:i" }}
+                            Atendido por Dr(a). {{ a.veterinario.last_name|default:a.veterinario.username }} el {{
+                            a.fecha_atencion|date:"d/m/Y H:i" }}
                         </small>
                     </div>
                     <div>
@@ -205,19 +211,21 @@
                     <div class="d-flex justify-content-between align-items-start mb-1">
                         <strong class="text-dark">{{ r.titulo }}</strong>
                         {% if r.esta_vencido %}
-                            <span class="badge bg-danger">Vencido</span>
+                        <span class="badge bg-danger">Vencido</span>
                         {% else %}
-                            <span class="badge bg-warning text-dark">¡Vence hoy!</span>
+                        <span class="badge bg-warning text-dark">¡Vence hoy!</span>
                         {% endif %}
                     </div>
                     <div class="small text-muted mb-2">
                         Paciente: <strong>{{ r.mascota.nombre }}</strong> | Tutor: {{ r.tutor.nombre_completo }}
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{% url 'recordatorios:recordatorio_enviar_whatsapp' r.id %}" target="_blank" class="btn btn-sm btn-success">
+                        <a href="{% url 'recordatorios:recordatorio_enviar_whatsapp' r.id %}" target="_blank"
+                            class="btn btn-sm btn-success">
                             <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp
                         </a>
-                        <a href="{% url 'citas:cita_crear' %}?fecha={{ hoy|date:'Y-m-d' }}" class="btn btn-sm btn-outline-primary">
+                        <a href="{% url 'citas:cita_crear' %}?fecha={{ hoy|date:'Y-m-d' }}"
+                            class="btn btn-sm btn-outline-primary">
                             Agendar Cita
                         </a>
                     </div>
@@ -234,7 +242,8 @@
 
         <!-- ACCESOS RÁPIDOS CLÍNICOS -->
         <div class="card card-petcare p-3 bg-light">
-            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-bolt me-2"></i>Accesos Rápidos de Recepción</h6>
+            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-bolt me-2"></i>Accesos Rápidos de Recepción
+            </h6>
             <div class="d-grid gap-2">
                 <a href="{% url 'clientes:tutor_crear' %}" class="btn btn-white border text-start shadow-sm py-2">
                     <i class="fa-solid fa-user-plus text-primary me-2"></i> Registrar Nuevo Tutor y Mascota
@@ -242,12 +251,15 @@
                 <a href="{% url 'citas:calendario' %}" class="btn btn-white border text-start shadow-sm py-2">
                     <i class="fa-solid fa-calendar-check text-success me-2"></i> Revisar Disponibilidad de Médicos
                 </a>
-                <a href="{% url 'recordatorios:vacunacion_registrar' %}" class="btn btn-white border text-start shadow-sm py-2">
+                <a href="{% url 'recordatorios:vacunacion_registrar' %}"
+                    class="btn btn-white border text-start shadow-sm py-2">
                     <i class="fa-solid fa-syringe text-danger me-2"></i> Registrar Aplicación de Vacuna
                 </a>
+                {% if user.is_superuser or user.perfil.rol == 'ADMIN' %}
                 <a href="/admin/" target="_blank" class="btn btn-white border text-start shadow-sm py-2">
                     <i class="fa-solid fa-gear text-dark me-2"></i> Administrador Django (Gestión de Modelos)
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>

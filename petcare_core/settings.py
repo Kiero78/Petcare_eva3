@@ -5,10 +5,20 @@ Evaluación Parcial N°3 - PetCare Backend
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    env_path = Path(__file__).resolve().parent.parent / '.env'
+    if env_path.exists():
+        with open(env_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    k, v = line.split('=', 1)
+                    os.environ.setdefault(k.strip(), v.strip())
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
