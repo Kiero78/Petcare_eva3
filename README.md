@@ -159,7 +159,7 @@ ssh -i "tu-clave.pem" ubuntu@TU_IP_PUBLICA_EC2
 ### Paso 3: Clonar el Repositorio en la Carpeta `/home/ubuntu/petcare`
 ```bash
 cd /home/ubuntu
-git clone <URL_DE_TU_REPOSITORIO> petcare
+git clone https://github.com/Kiero78/Petcare_eva3.git petcare
 cd petcare
 ```
 
