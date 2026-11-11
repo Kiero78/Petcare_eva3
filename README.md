@@ -11,12 +11,12 @@
 ## 🌐 Enlace de Despliegue en AWS Cloud
 
 > 🚀 **IP Pública de Acceso (AWS EC2):**  
-> `http://TU_IP_PUBLICA_AWS_AQUI/`  
+> `http://100.61.197.31/`  
 > *(Reemplazar con la IP asignada por AWS Academy al iniciar la instancia EC2)*  
 >  
-> - **Aplicación Web Principal:** `http://TU_IP_PUBLICA_AWS_AQUI/`  
-> - **Panel Django Admin:** `http://TU_IP_PUBLICA_AWS_AQUI/admin/`  
-> - **API REST DRF:** `http://TU_IP_PUBLICA_AWS_AQUI/api/`  
+> - **Aplicación Web Principal:** `http://100.61.197.31/`  
+> - **Panel Django Admin:** `http://100.61.197.31/admin/`  
+> - **API REST DRF:** `http://100.61.197.31/api/`  
 
 ---
 
