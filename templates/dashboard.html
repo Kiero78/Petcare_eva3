@@ -7,8 +7,7 @@
     <div>
         <h2 class="fw-bold mb-1"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Panel de Control Clínico
         </h2>
-        <p class="text-muted mb-0">Resumen operativo al día de hoy, <strong>{{ hoy|date:"l d \d\e F \d\e Y"|capfirst
-                }}</strong></p>
+        <p class="text-muted mb-0">Resumen operativo al día de hoy, <strong>{{ hoy|date:"l d \d\e F \d\e Y"|capfirst }}</strong></p>
     </div>
     <div class="d-flex gap-2">
         <a href="{% url 'citas:cita_crear' %}" class="btn btn-petcare">
@@ -177,9 +176,8 @@
                         <div class="small text-muted">
                             Diagnóstico: {{ a.diagnostico_principal|truncatechars:50 }}
                         </div>
-                        <small class="text-secondary">
-                            Atendido por Dr(a). {{ a.veterinario.last_name|default:a.veterinario.username }} el {{
-                            a.fecha_atencion|date:"d/m/Y H:i" }}
+                        <small class="text-secondary d-block mt-1">
+                            <i class="fa-solid fa-user-doctor text-primary me-1"></i>Dr(a). {{ a.veterinario.last_name|default:a.veterinario.username }} • <i class="fa-regular fa-clock me-1"></i>{{ a.fecha_atencion|date:"d/m/Y H:i" }}
                         </small>
                     </div>
                     <div>

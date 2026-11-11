@@ -1,7 +1,7 @@
 # 🧠 Bitácora de Uso de Inteligencia Artificial (prompts_ia.md)
 **Proyecto:** PetCare - Sistema de Gestión de Citas y Fichas Médicas para Veterinaria  
 **Evaluación Parcial N°3:** Desarrollo Backend (INACAP)  
-**Estudiante:** Vicente  
+**Estudiante:** Vicente Flores
 **Framework:** Django 5.2 + Django REST Framework (DRF) + PostgreSQL  
 **Despliegue:** AWS EC2 Cloud  
 
