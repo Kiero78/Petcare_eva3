@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from .models import Tutor, Mascota, Especie, Raza
 from .forms import TutorForm, MascotaForm
 from apps.fichas.models import FichaClinica
+from apps.usuarios.decorators import solo_recepcionista
 
 
 @login_required
@@ -81,6 +82,7 @@ def tutor_editar(request, pk):
 
 
 @login_required
+@solo_recepcionista
 def tutor_eliminar(request, pk):
     tutor = get_object_or_404(Tutor, pk=pk)
     if request.method == 'POST':

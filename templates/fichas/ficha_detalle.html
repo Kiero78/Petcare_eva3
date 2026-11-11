@@ -30,12 +30,14 @@
         </div>
 
         <div class="d-flex gap-2">
+            {% if user.is_superuser or user.perfil.rol in 'VETERINARIO,ADMIN' %}
             <a href="{% url 'fichas:atencion_crear' mascota.id %}" class="btn btn-petcare">
                 <i class="fa-solid fa-stethoscope me-1"></i> + Registrar Atención
             </a>
             <a href="{% url 'fichas:ficha_editar' mascota.id %}" class="btn btn-outline-secondary" title="Editar Antecedentes">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
+            {% endif %}
         </div>
     </div>
 

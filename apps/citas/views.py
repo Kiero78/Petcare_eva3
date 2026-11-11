@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from .models import Cita, HorarioDisponibilidad
 from .forms import CitaForm, HorarioDisponibilidadForm
 from apps.clientes.models import Tutor, Mascota
+from apps.usuarios.decorators import solo_veterinario
 
 
 @login_required
@@ -111,6 +112,15 @@ def cita_cambiar_estado(request, pk, nuevo_estado):
     estados_validos = dict(Cita.ESTADOS).keys()
 
     if nuevo_estado in estados_validos:
+        # Validación de seguridad de rol: Solo un veterinario o admin puede iniciar la consulta médica
+        if nuevo_estado == 'EN_ATENCION':
+            es_vet_o_admin = request.user.is_superuser or (
+                hasattr(request.user, 'perfil') and request.user.perfil.rol in ['VETERINARIO', 'ADMIN']
+            )
+            if not es_vet_o_admin:
+                messages.error(request, "Acceso denegado: Solo el médico veterinario asignado o el administrador pueden iniciar la consulta médica.")
+                return redirect('citas:cita_detalle', pk=cita.id)
+
         cita.estado = nuevo_estado
         cita.save()
         messages.success(request, f"Estado de Cita #{cita.id} cambiado a {cita.get_estado_display()}.")
@@ -226,6 +236,7 @@ def disponibilidad_lista(request):
 
 
 @login_required
+@solo_veterinario
 def disponibilidad_crear(request):
     if request.method == 'POST':
         form = HorarioDisponibilidadForm(request.POST)

@@ -9,6 +9,7 @@ from .forms import FichaClinicaForm, AtencionClinicaForm, RecetaMedicaForm, Exam
 from apps.clientes.models import Mascota
 from apps.citas.models import Cita
 from apps.recordatorios.models import Recordatorio
+from apps.usuarios.decorators import solo_veterinario
 
 
 @login_required
@@ -34,6 +35,7 @@ def ficha_detalle(request, mascota_id):
 
 
 @login_required
+@solo_veterinario
 def ficha_editar(request, mascota_id):
     mascota = get_object_or_404(Mascota, pk=mascota_id)
     ficha, _ = FichaClinica.objects.get_or_create(mascota=mascota)
@@ -51,6 +53,7 @@ def ficha_editar(request, mascota_id):
 
 
 @login_required
+@solo_veterinario
 def atencion_crear(request, mascota_id):
     mascota = get_object_or_404(Mascota, pk=mascota_id)
     ficha, _ = FichaClinica.objects.get_or_create(mascota=mascota)
@@ -89,6 +92,7 @@ def atencion_crear(request, mascota_id):
 
 
 @login_required
+@solo_veterinario
 def atencion_crear_desde_cita(request, cita_id):
     cita = get_object_or_404(Cita.objects.select_related('mascota__tutor', 'veterinario'), pk=cita_id)
     mascota = cita.mascota
@@ -167,6 +171,7 @@ def atencion_detalle(request, pk):
 # ----------------- RECETAS Y EXÁMENES -----------------
 
 @login_required
+@solo_veterinario
 def receta_agregar(request, atencion_id):
     atencion = get_object_or_404(AtencionClinica, pk=atencion_id)
     if request.method == 'POST':
@@ -180,6 +185,7 @@ def receta_agregar(request, atencion_id):
 
 
 @login_required
+@solo_veterinario
 def receta_eliminar(request, pk):
     receta = get_object_or_404(RecetaMedica, pk=pk)
     atencion_id = receta.atencion.id
@@ -205,6 +211,7 @@ def receta_imprimir(request, atencion_id):
 
 
 @login_required
+@solo_veterinario
 def examen_agregar(request, atencion_id):
     atencion = get_object_or_404(AtencionClinica, pk=atencion_id)
     if request.method == 'POST':

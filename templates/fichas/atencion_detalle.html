@@ -119,9 +119,11 @@
                 <h5 class="fw-bold mb-0">
                     <i class="fa-solid fa-pills text-success me-2"></i>Receta Médica ({{ recetas.count }})
                 </h5>
+                {% if user.is_superuser or user.perfil.rol in 'VETERINARIO,ADMIN' %}
                 <button type="button" class="btn btn-sm btn-petcare" data-bs-toggle="modal" data-bs-target="#modalReceta">
                     <i class="fa-solid fa-plus me-1"></i> Fármaco
                 </button>
+                {% endif %}
             </div>
 
             {% if recetas %}
@@ -142,12 +144,14 @@
                             <small class="text-secondary d-block fst-italic">"{{ r.indicaciones_especiales }}"</small>
                             {% endif %}
                         </div>
+                        {% if user.is_superuser or user.perfil.rol in 'VETERINARIO,ADMIN' %}
                         <form method="POST" action="{% url 'fichas:receta_eliminar' r.id %}" onsubmit="return confirm('¿Eliminar fármaco de la receta?');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-danger border-0">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -170,9 +174,11 @@
                 <h5 class="fw-bold mb-0">
                     <i class="fa-solid fa-flask-vial text-info me-2"></i>Exámenes Clínicos
                 </h5>
+                {% if user.is_superuser or user.perfil.rol in 'VETERINARIO,ADMIN' %}
                 <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalExamen">
                     <i class="fa-solid fa-plus me-1"></i> Examen
                 </button>
+                {% endif %}
             </div>
 
             {% if examenes %}

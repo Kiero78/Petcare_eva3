@@ -19,7 +19,9 @@
         {% else %}
             <div class="btn-group">
                 <a href="{% url 'citas:cita_cambiar_estado' cita.id 'CONFIRMADA' %}" class="btn btn-info btn-sm text-dark">Confirmar</a>
+                {% if user.is_superuser or user.perfil.rol in 'VETERINARIO,ADMIN' %}
                 <a href="{% url 'citas:cita_cambiar_estado' cita.id 'EN_ATENCION' %}" class="btn btn-primary btn-sm">Iniciar Consulta Médica</a>
+                {% endif %}
                 <a href="{% url 'citas:cita_cambiar_estado' cita.id 'CANCELADA' %}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que desea cancelar esta cita?');">Cancelar</a>
             </div>
         {% endif %}
